@@ -1,0 +1,7 @@
+# Ignore local editor settings
+.vscode/
+.idea/
+.DS_Store
+
+# Ignore environment secret templates if dropped in root
+.env

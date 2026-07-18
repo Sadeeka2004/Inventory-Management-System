@@ -1,0 +1,105 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Store {
+  id        Int      @id @default(autoincrement())
+  name      String
+  address   String?
+  phone     String?
+  manager   String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  transactions StockTransaction[]
+}
+
+model Supplier {
+  id            Int     @id @default(autoincrement())
+  shopName      String
+  contactPerson String?
+  phone         String?
+  email         String?
+  address       String?
+
+  isActive Boolean @default(true)
+
+  products     SupplierProduct[]
+  transactions StockTransaction[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  products Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Product {
+  id         Int      @id @default(autoincrement())
+  name       String
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  unit         String
+  minimumStock Int     @default(0)
+  description  String?
+  isActive     Boolean @default(true)
+
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  transactions    StockTransaction[]
+  SupplierProduct SupplierProduct[]
+}
+
+model SupplierProduct {
+  id Int @id @default(autoincrement())
+
+  supplierId Int
+  productId  Int
+
+  purchasePrice Float
+
+  supplier Supplier @relation(fields: [supplierId], references: [id])
+
+  product Product @relation(fields: [productId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model StockTransaction {
+  id Int @id @default(autoincrement())
+
+  type String // IN or OUT
+  quantity Int
+  purchasePrice Float?
+  date DateTime @default(now())
+
+  takenBy String?
+  reason String?
+
+  productId Int
+  product Product @relation(fields: [productId], references: [id])
+
+  storeId Int
+  store Store @relation(fields: [storeId], references: [id])
+
+  supplierId Int?
+  supplier Supplier? @relation(fields: [supplierId], references: [id])
+  
+}
